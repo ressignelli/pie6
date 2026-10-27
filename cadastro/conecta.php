@@ -1,14 +1,20 @@
 <?php
-    $servername = "localhost";
-    $database = "";
-    $username = "";
-    $password = "";
-    
+$configFile = dirname(__DIR__) . '/config.local.php';
+if (!file_exists($configFile)) {
+    $configFile = dirname(__DIR__) . '/config.example.php';
+}
 
-    $conn = mysqli_connect($servername, $username, $password, $database);
-    
-    if ($conn->connect_error){
-        die("Falha na conexão: " . $conn->connect_error);
-    }
-    
-?>
+$config = require $configFile;
+
+$conn = mysqli_connect(
+    $config['servername'],
+    $config['username'],
+    $config['password'],
+    $config['database']
+);
+
+if (!$conn) {
+    die('Falha na conexão: ' . mysqli_connect_error());
+}
+
+mysqli_set_charset($conn, 'utf8mb4');

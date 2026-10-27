@@ -1,13 +1,13 @@
 <?php
-session_start();
-$id = $_SESSION['id'] ?? 'anonimo'; // Identificador do usuário
+require_once 'auth.php';
+$id = (int) $_SESSION['id'];
 $dados = json_decode(file_get_contents("php://input"), true);
 
-// if (!$dados || !is_array($dados)) {
-//     http_response_code(400);
-//     echo "Dados inválidos.";
-//     exit;
-//}
+if (!is_array($dados)) {
+    http_response_code(400);
+    echo "Dados inválidos.";
+    exit;
+}
 
 $arquivo = "dados_antro_{$id}.csv";
 $fp = fopen($arquivo, "w");
@@ -18,10 +18,8 @@ if ($fp === false) {
     exit;
 }
 
-// Cabeçalho
 fputcsv($fp, ["data", "massa", "estatura", "imc", "cirabd", "relabdqua"]);
 
-// Dados
 foreach ($dados as $linha) {
     fputcsv($fp, $linha);
 }

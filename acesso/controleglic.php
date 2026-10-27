@@ -7,13 +7,14 @@
     <title>Avaliação de Glicemia</title>
     <script src="script.js" defer></script>
     <script src="controleglic.js" defer></script>
+    <script src="compartilhar_relatorio.js" defer></script>
 	<script src="relatorio_glic.js" defer></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <?php
 require_once 'conecta.php';
-session_start();
-$id = $_SESSION['id'];
+require_once 'auth.php';
+$id = (int) $_SESSION['id'];
     
     $stmt = $conn->prepare("SELECT * FROM tab_usuario WHERE id = ?");
     $stmt->bind_param("i", $id);
@@ -36,7 +37,7 @@ $id = $_SESSION['id'];
   font-weight: bold;
   z-index: 1000;
 ">
-  PI-4 - Acompanhamento de Saúde Individual
+  PI-6 - Acompanhamento de Saúde Individual
 	UNIVESP
 </div>
 
@@ -53,7 +54,7 @@ $id = $_SESSION['id'];
       color: black;
       font-weight: bold;
     ">
-	Bem-vindo: <?php echo $array_usuario['nome']; ?></label>
+	Bem-vindo: <?php echo htmlspecialchars($array_usuario['nome']); ?></label>
     <div class="titulos">
         <h1>Controle de Glicemia</h1>
 		<img src="img/relatorio.png" alt="Ícone Relatório" class="icone" onclick="abrirPopup()" title="Emitir Relatório">
@@ -66,7 +67,7 @@ $id = $_SESSION['id'];
 
 	<div class="subtitulos">
 		<h3>Adicionar Valores</h3>
-	</div
+	</div>
       <div class="campo">
 			<table class="tabela-saude">
   			<thead>
@@ -131,6 +132,7 @@ $id = $_SESSION['id'];
 	<div style="text-align: center;">
     		<div class="campo">
         		<button type="button" id="salvar">Salvar</button>
+            <button type="button" onclick="voltarInicio()">Voltar ao início</button>
     		</div>
 	</div>
 
@@ -139,10 +141,13 @@ $id = $_SESSION['id'];
 
 <div id="popup" class="popup">
     <div id="popup-header">
-      <h2 style="font-size:14px;">Relatório de Glicemia de <?php echo $array_usuario['nome']; ?></h2>
+      <h2 style="font-size:14px;">Relatório de Glicemia de <?php echo htmlspecialchars($array_usuario['nome']); ?></h2>
       <div class="buttons">
-        <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
-        <button class="btn" onclick="fecharPopup()">❌ Fechar</button>
+        <button class="btn" onclick="window.print()">Imprimir</button>
+        <button class="btn" onclick="compartilharWhatsApp('Relatório de Glicemia - PI-6')">WhatsApp</button>
+        <button class="btn" onclick="compartilharEmail('Relatório de Glicemia - PI-6')">E-mail</button>
+        <button class="btn" onclick="voltarInicio()">Início</button>
+        <button class="btn" onclick="fecharPopup()">Fechar</button>
       </div>
     </div>
   <div id="relatorio-tabela"></div>

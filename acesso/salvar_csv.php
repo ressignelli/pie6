@@ -1,7 +1,13 @@
 <?php
-session_start();
-$id = $_SESSION['id'] ?? 'anonimo'; // Identificador do usuário
+require_once 'auth.php';
+$id = (int) $_SESSION['id'];
 $dados = json_decode(file_get_contents("php://input"), true);
+
+if (!is_array($dados)) {
+    http_response_code(400);
+    echo "Dados inválidos.";
+    exit;
+}
 
 // if (!$dados || !is_array($dados)) {
 //    http_response_code(400);

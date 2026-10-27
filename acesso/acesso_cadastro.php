@@ -1,32 +1,47 @@
 <?php
-
 require_once 'conecta.php';
 
-$email = $_POST['email'] ?? '';
+$email = trim($_POST['email'] ?? '');
 $senha = $_POST['senha'] ?? '';
 
-    $email = mysqli_real_escape_string($conn, $email);
-    $senha = mysqli_real_escape_string($conn, $senha);
+if ($email === '' || $senha === '') {
+    echo "<script>alert('Informe e-mail e senha.'); window.history.go(-1);</script>";
+    exit;
+}
 
-    $acesso = -1;
+$stmt = $conn->prepare('SELECT id, senha FROM tab_usuario WHERE email = ?');
+$stmt->bind_param('s', $email);
+$stmt->execute();
+$result = $stmt->get_result();
 
-    $query = "SELECT * FROM tab_usuario WHERE email = '$email' AND BINARY senha = '$senha'";
-    $verifica_cad = mysqli_query($conn, $query) or die("Erro!");
-    if (mysqli_num_rows($verifica_cad) > 0){
-        session_start();
+if ($result->num_rows === 0) {
+    $stmt->close();
+    echo "<script>alert('Login, senha ou ID incorreto(s)!'); window.history.go(-1);</script>";
+    exit;
+}
 
-        $row = mysqli_fetch_array($verifica_cad);
-        $_SESSION['id'] = $row[0];
+$row = $result->fetch_assoc();
+$stmt->close();
 
-        header("Location:telaprincuser.php");
-    }else{
-        echo "<script>
-                alert('Login, senha ou ID incorreto(s)!');
-                window.history.go(-1);
-              </script>";
-              exit();
-    }
+$hash = $row['senha'];
+$ok = password_verify($senha, $hash);
 
+// Compatibilidade com senhas antigas em texto puro
+if (!$ok && hash_equals((string) $hash, (string) $senha)) {
+    $ok = true;
+    $novoHash = password_hash($senha, PASSWORD_DEFAULT);
+    $upd = $conn->prepare('UPDATE tab_usuario SET senha = ? WHERE id = ?');
+    $upd->bind_param('si', $novoHash, $row['id']);
+    $upd->execute();
+    $upd->close();
+}
 
- 
-?>
+if (!$ok) {
+    echo "<script>alert('Login, senha ou ID incorreto(s)!'); window.history.go(-1);</script>";
+    exit;
+}
+
+session_start();
+$_SESSION['id'] = (int) $row['id'];
+header('Location: telaprincuser.php');
+exit;

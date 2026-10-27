@@ -1,6 +1,6 @@
 <?php
-session_start();
-$id = $_SESSION['id'] ?? 'anonimo';
+require_once 'auth.php';
+$id = (int) $_SESSION['id'];
 $arquivo = "dados_pressao_{$id}.csv";
 
 if (!file_exists($arquivo)) {
@@ -10,7 +10,7 @@ if (!file_exists($arquivo)) {
 
 $dados = [];
 if (($handle = fopen($arquivo, "r")) !== false) {
-    $cabecalho = fgetcsv($handle); // Ignora a primeira linha
+    fgetcsv($handle);
     while (($linha = fgetcsv($handle)) !== false) {
         $dados[] = $linha;
     }

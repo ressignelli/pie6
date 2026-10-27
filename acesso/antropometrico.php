@@ -9,13 +9,14 @@
     <script src="script.js" defer></script>
     <script src="modal_java.js" defer></script>
     <script src="antropometrico.js" defer></script>
+    <script src="compartilhar_relatorio.js" defer></script>
     <script src="relatorio_antro.js" defer></script>
 	  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <?php
 require_once 'conecta.php';
-session_start();
-$id = $_SESSION['id'];
+require_once 'auth.php';
+$id = (int) $_SESSION['id'];
     
     $stmt = $conn->prepare("SELECT * FROM tab_usuario WHERE id = ?");
     $stmt->bind_param("i", $id);
@@ -38,7 +39,7 @@ $id = $_SESSION['id'];
   font-weight: bold;
   z-index: 1000;
 ">
-  PI-4 - Acompanhamento de Saúde Individual
+  PI-6 - Acompanhamento de Saúde Individual
 	UNIVESP
 </div>
 
@@ -55,9 +56,9 @@ $id = $_SESSION['id'];
       color: black;
       font-weight: bold;
     ">
-	Bem-vindo: <?php echo $array_usuario['nome']; ?>
+	Bem-vindo: <?php echo htmlspecialchars($array_usuario['nome']); ?>
 </label>
-    <input id="sexo" type="hidden" value="<?php echo $array_usuario['sexo'];?>">
+    <input id="sexo" type="hidden" value="<?php echo htmlspecialchars((string)$array_usuario['sexo']); ?>">
 	<div class="titulos">
     		<h1>Avaliação Antropométrica</h1>
 		<img src="img/relatorio.png" alt="Ícone Relatório" class="icone" onclick="abrirPopup()" title="Emitir Relatório">
@@ -91,7 +92,7 @@ $id = $_SESSION['id'];
 		</label>
 	</div>
 	<div class="campo">
-      	<input type="number" name="cirabd" id="cirabd" placeholder="Valor em cm" style="width: 100px;" min="0" max="300" step="0.1" oninput="circAbdModal(this.value)">
+      	<input type="number" name="cirabd" id="cirabd" placeholder="Valor em cm" style="width: 100px;" min="0" max="300" step="0.1" oninput="calculacirabd()">
 	</div>
 
 	<div id="resultcirabd"></div>
@@ -142,6 +143,7 @@ $id = $_SESSION['id'];
 	<div style="text-align: center;">
     		<div class="campo">
         		<button type="button" id="salvar">Salvar</button>
+            <button type="button" onclick="voltarInicio()">Voltar ao início</button>
     		</div>
 	</div>
 
@@ -169,10 +171,13 @@ $id = $_SESSION['id'];
 </body>
 <div id="popup" class="popup">
     <div id="popup-header">
-      <h2 style="font-size:14px;">Relatório Antropométrico de <?php echo $array_usuario['nome']; ?></h2>
+      <h2 style="font-size:14px;">Relatório Antropométrico de <?php echo htmlspecialchars($array_usuario['nome']); ?></h2>
       <div class="buttons">
-        <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
-        <button class="btn" onclick="fecharPopup()">❌ Fechar</button>
+        <button class="btn" onclick="window.print()">Imprimir</button>
+        <button class="btn" onclick="compartilharWhatsApp('Relatório Antropométrico - PI-6')">WhatsApp</button>
+        <button class="btn" onclick="compartilharEmail('Relatório Antropométrico - PI-6')">E-mail</button>
+        <button class="btn" onclick="voltarInicio()">Início</button>
+        <button class="btn" onclick="fecharPopup()">Fechar</button>
       </div>
     </div>
     <div id="relatorio-tabela"></div>

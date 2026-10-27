@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>PIE-4 - Univesp</title>
+  <title>PI-6 - Univesp</title>
   <script src="js/cadpie4.js" defer></script>
   <script src="js/validar_senha.js" defer></script>
   <style>
